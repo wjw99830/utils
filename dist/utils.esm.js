@@ -10,11 +10,6 @@ const deepMerge = (source, target) => {
     }
     return source;
 };
-/**
- * 函数防抖/节流
- * @param fn
- * @param opts default: 200
- */
 function debounce(fn, opts = {}) {
     const interval = isUndefined(opts.interval) ? 200 : opts.interval;
     const callLast = isUndefined(opts.callLast) || opts.callLast;
@@ -29,8 +24,8 @@ function debounce(fn, opts = {}) {
             buffering = true;
             setTimeout(() => {
                 buffering = false;
-                if (callLast) {
-                    fn.call(this, lastArguments);
+                if (callLast && lastArguments) {
+                    fn.call(this, ...lastArguments);
                 }
             }, interval);
             fn.call(this, ...arguments);
@@ -80,5 +75,63 @@ function pascalToCamel(pascal) {
 function sleep(duration) {
     return new Promise((resolve) => setTimeout(resolve, duration));
 }
+function deepClone(obj) {
+    function isRefType(o) {
+        if (typeof o !== 'object' || o === null) {
+            return false;
+        }
+        return true;
+    }
+    if (!isRefType(obj)) {
+        return obj;
+    }
+    const isArray = Array.isArray(obj);
+    const replica = isArray ? [] : {};
+    const stack = [{
+            replica,
+            target: obj,
+        }];
+    while (stack.length > 0) {
+        const { target, replica } = stack.pop();
+        for (const [key, val] of Object.entries(target)) {
+            if (isRefType(val)) {
+                replica[key] = Array.isArray(val) ? [] : {};
+                stack.push({
+                    target: val,
+                    replica: replica[key],
+                });
+            }
+            else {
+                replica[key] = val;
+            }
+        }
+    }
+    return replica;
+}
+/**
+ * 快排，返回一个新数组（Array.prototype.sort为原地排序）
+ * @param arr 待排序数组
+ * @param toLeft 比较函数，若返回true，则当前数据项被移到左边
+ */
+function quickSort(arr, toLeft) {
+    const unsort = arr.slice();
+    if (!unsort.length) {
+        return unsort;
+    }
+    const pivot = unsort.pop();
+    const left = [];
+    const right = [];
+    let crt = unsort.pop();
+    while (!isUndefined(crt)) {
+        if (toLeft(pivot, crt)) {
+            left.push(crt);
+        }
+        else {
+            right.push(crt);
+        }
+        crt = unsort.pop();
+    }
+    return [...quickSort(left, toLeft), pivot, ...quickSort(right, toLeft)];
+}
 
-export { debounce, deepMerge, isArray, isFunction, isNull, isNumber, isPlainObject, isString, isUndefined, kebabToPascal, pascalToCamel, sleep };
+export { debounce, deepClone, deepMerge, isArray, isFunction, isNull, isNumber, isPlainObject, isString, isUndefined, kebabToPascal, pascalToCamel, quickSort, sleep };

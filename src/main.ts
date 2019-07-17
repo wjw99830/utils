@@ -155,3 +155,4 @@ export function quickSort<T>(arr: T[], toLeft: (pivot: T, crt: T) => boolean): T
   }
   return [...quickSort(left, toLeft), pivot, ...quickSort(right, toLeft)];
 }
+export * from './types';
