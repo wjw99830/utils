@@ -1,0 +1,38 @@
+{
+  "name": "@wpkg/utils",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/utils.common.js",
+  "module": "dist/utils.esm.js",
+  "umd": "dist/utils.umd.js",
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "lint": "eslint src/** --fix",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wjw99830/utils.git"
+  },
+  "keywords": [
+    "utils"
+  ],
+  "author": "wjw",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wjw99830/utils/issues"
+  },
+  "homepage": "https://github.com/wjw99830/utils#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@typescript-eslint/eslint-plugin": "^1.12.0",
+    "@typescript-eslint/parser": "^1.12.0",
+    "eslint": "^6.0.1",
+    "jest": "^24.8.0",
+    "rollup": "^1.17.0",
+    "rollup-plugin-typescript2": "^0.22.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  }
+}
