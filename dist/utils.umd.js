@@ -81,38 +81,46 @@
   function sleep(duration) {
       return new Promise((resolve) => setTimeout(resolve, duration));
   }
+  const isRefType = (o) => o && typeof o === 'object';
   function deepClone(obj) {
-      function isRefType(o) {
-          if (typeof o !== 'object' || o === null) {
-              return false;
-          }
-          return true;
-      }
       if (!isRefType(obj)) {
           return obj;
       }
-      const isArray = Array.isArray(obj);
-      const replica = isArray ? [] : {};
+      const copy = isArray(obj) ? [] : {};
       const stack = [{
-              replica,
+              copy,
               target: obj,
           }];
+      const copiedRefs = [];
+      const { set, ownKeys } = Reflect;
       while (stack.length > 0) {
-          const { target, replica } = stack.pop();
-          for (const [key, val] of Object.entries(target)) {
+          const { target, copy } = stack.pop();
+          const keys = ownKeys(target);
+          for (const key of keys) {
+              const val = target[key];
               if (isRefType(val)) {
-                  replica[key] = Array.isArray(val) ? [] : {};
+                  const copied = copiedRefs.find(copied => copied.target === val);
+                  if (copied) {
+                      set(copy, key, copied.copy);
+                      continue;
+                  }
+                  const copyVal = isArray(val) ? [] : {};
+                  set(copy, key, copyVal);
                   stack.push({
                       target: val,
-                      replica: replica[key],
+                      copy: copyVal,
                   });
               }
               else {
-                  replica[key] = val;
+                  set(copy, key, val);
               }
           }
+          copiedRefs.push({
+              target,
+              copy,
+          });
       }
-      return replica;
+      return copy;
   }
   /**
    * 快排，返回一个新数组（Array.prototype.sort为原地排序）

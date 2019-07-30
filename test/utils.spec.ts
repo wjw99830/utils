@@ -1,7 +1,7 @@
 import { deepClone, deepMerge, kebabToPascal, sleep, quickSort, debounce, pascalToCamel } from '../src/main';
 
 describe('deepClone', () => {
-  it('clones a new plain object.', () => {
+  it('should clone a new plain object.', () => {
     const src = {
       foo: 'foo',
       bar: {
@@ -14,7 +14,7 @@ describe('deepClone', () => {
     expect(clone.foo).toBe('foo');
     expect(clone.bar.prop).toBe('prop');
   });
-  it('clones a new array.', () => {
+  it('should clone a new array.', () => {
     const src = [1, 2, 'foo', 'bar', {
       foo: 'bar',
     }];
@@ -31,7 +31,7 @@ describe('deepClone', () => {
       foo: 'bar bar',
     });
   });
-  it('clones a value-type variable.', () => {
+  it('should clone a value-type variable.', () => {
     let src: any = 1;
     let clone = deepClone(src);
     expect(clone).toBe(src);
@@ -47,6 +47,22 @@ describe('deepClone', () => {
     src = true;
     clone = deepClone(src);
     expect(clone).toBe(src);
+  });
+  it('should clone symbol keys.', () => {
+    const symbolA = Symbol('a');
+    const src = {
+      [symbolA]: 'symbol-a',
+    };
+    const clone = deepClone(src);
+    expect(clone[symbolA]).toBe('symbol-a');
+  });
+  it('should clone recursive reference object.', () => {
+    const a: any = {};
+    const b: any = {};
+    b.a = a;
+    a.b = b;
+    const clone = deepClone(a);
+    expect(clone).toBe(clone.b.a);
   });
 });
 

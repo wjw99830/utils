@@ -93,42 +93,50 @@ export function sleep(duration: number) {
   return new Promise((resolve) => setTimeout(resolve, duration));
 }
 
+const isRefType = (o: any) => o && typeof o === 'object';
 /**
  * 深拷贝一个普通的js对象，采用非递归形式避免栈溢出
  * @param obj 源对象
  */
 export function deepClone<T>(obj: T): T;
-export function deepClone(obj: object | any[]) {
-  function isRefType(o: any) {
-    if (typeof o !== 'object' || o === null) {
-      return false;
-    }
-    return true;
-  }
+export function deepClone(obj: any) {
   if (!isRefType(obj)) {
     return obj;
   }
-  const isArray = Array.isArray(obj);
-  const replica: object | any[] = isArray ? [] : {};
-  const stack: any[] = [{
-    replica,
+  const copy: Record<symbol | string | number, any> | any[] = isArray(obj) ? [] : {};
+  const stack = [{
+    copy,
     target: obj,
   }];
+  const copiedRefs: Array<{ target: any, copy: any }> = [];
+  const { set, ownKeys } = Reflect;
   while (stack.length > 0) {
-    const { target, replica } = stack.pop();
-    for (const [key, val] of Object.entries(target)) {
+    const { target, copy } = stack.pop()!;
+    const keys = ownKeys(target);
+    for (const key of keys) {
+      const val = target[key];
       if (isRefType(val)) {
-        replica[key] = Array.isArray(val) ? [] : {};
+        const copied = copiedRefs.find(copied => copied.target === val);
+        if (copied) {
+          set(copy, key, copied.copy);
+          continue;
+        }
+        const copyVal = isArray(val) ? [] : {};
+        set(copy, key, copyVal);
         stack.push({
           target: val,
-          replica: replica[key],
+          copy: copyVal,
         });
       } else {
-        replica[key] = val;
+        set(copy, key, val);
       }
     }
+    copiedRefs.push({
+      target,
+      copy,
+    });
   }
-  return replica;
+  return copy;
 }
 
 /**
