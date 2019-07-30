@@ -7,8 +7,13 @@ import { AnyFunction } from './types';
  */
 export const deepMerge = <S extends { [key: string]: any }, T extends { [key: string]: any }>(source: S, target: T): S & T => {
   for (const [key, val] of Object.entries(target)) {
-    // @ts-ignore
-    source[key] = isPlainObject(source[key]) && isPlainObject(val) ? deepMerge(source[key], target[key]) : target[key];
+    if (isPlainObject(source[key]) && isPlainObject(val)) {
+      // @ts-ignore
+      source[key] = deepMerge(source[key], target[key]);
+    } else {
+      // @ts-ignore
+      source[key] = target[key];
+    }
   }
   return source as S & T;
 }
@@ -65,7 +70,7 @@ export function isFunction(v: any): v is AnyFunction {
   return typeof v === 'function';
 }
 export function isPlainObject(v: any) {
-  return typeof v === 'object' && v;
+  return typeof v === 'object' && v && !isArray(v);
 }
 export const isArray = Array.isArray;
 
