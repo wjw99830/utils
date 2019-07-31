@@ -3,7 +3,7 @@ yarn add @wpkg/utils
 
 # List
 + AnyFunction (type): (...args: any[]) => any;
-+ deepClone: **not** support circular reference;
++ deepClone: support circular reference, symbol keys;
 + deepMerge: Recursively assign second object to first;
 + debounce: debounce a function with specified freq, default 200 ms, support executing last call;
 + isUndefined;
